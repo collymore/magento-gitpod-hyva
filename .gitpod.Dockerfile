@@ -44,7 +44,9 @@ RUN sudo install-packages php-xdebug
 #Install php-fpm
 RUN sudo apt-get update \
     && sudo apt-get install -y curl zip unzip git software-properties-common supervisor sqlite3 \
-    && sudo add-apt-repository -y ppa:ondrej/php \
+    && sudo apt update && sudo apt -y upgrade \
+    && sudo apt install lsb-release ca-certificates apt-transport-https software-properties-common -y \
+    && sudo add-apt-repository ppa:ondrej/php \
     && sudo apt-get update \
     && sudo apt-get install -y php${PHP_VERSION}-dev php${PHP_VERSION}-fpm php${PHP_VERSION}-common php${PHP_VERSION}-cli php${PHP_VERSION}-imagick php${PHP_VERSION}-gd php${PHP_VERSION}-mysql php${PHP_VERSION}-pgsql php${PHP_VERSION}-imap php-memcached php${PHP_VERSION}-mbstring php${PHP_VERSION}-xml php${PHP_VERSION}-xmlrpc php${PHP_VERSION}-soap php${PHP_VERSION}-zip php${PHP_VERSION}-curl php${PHP_VERSION}-bcmath php${PHP_VERSION}-sqlite3 php${PHP_VERSION}-intl php-dev php${PHP_VERSION}-dev php${PHP_VERSION}-xdebug php-redis \
     && sudo php -r "readfile('http://getcomposer.org/installer');" | sudo php -- --install-dir=/usr/bin/ --version=${COMPOSER_VERSION} --filename=composer \
