@@ -42,8 +42,10 @@ RUN sudo apt install -y php-pear
 RUN sudo install-packages php-xdebug
 
 #Install php-fpm
-RUN sudo apt-get install -y curl zip unzip git software-properties-common supervisor sqlite3 \
+RUN sudo apt-get update \
+    && sudo apt-get install -y curl zip unzip git software-properties-common supervisor sqlite3 \
     && sudo add-apt-repository -y ppa:ondrej/php \
+    && sudo apt-get update \
     && sudo apt-get install -y php${PHP_VERSION}-dev php${PHP_VERSION}-fpm php${PHP_VERSION}-common php${PHP_VERSION}-cli php${PHP_VERSION}-imagick php${PHP_VERSION}-gd php${PHP_VERSION}-mysql php${PHP_VERSION}-pgsql php${PHP_VERSION}-imap php-memcached php${PHP_VERSION}-mbstring php${PHP_VERSION}-xml php${PHP_VERSION}-xmlrpc php${PHP_VERSION}-soap php${PHP_VERSION}-zip php${PHP_VERSION}-curl php${PHP_VERSION}-bcmath php${PHP_VERSION}-sqlite3 php${PHP_VERSION}-intl php-dev php${PHP_VERSION}-dev php${PHP_VERSION}-xdebug php-redis \
     && sudo php -r "readfile('http://getcomposer.org/installer');" | sudo php -- --install-dir=/usr/bin/ --version=${COMPOSER_VERSION} --filename=composer \
     && sudo mkdir /run/php \
@@ -68,11 +70,13 @@ RUN echo "xdebug.remote_enable=on" >> /etc/php/${PHP_VERSION}/mods-available/xde
 RUN if [ ! "$XDEBUG_DEFAULT_ENABLED" = "YES" ]; then mv /etc/php/${PHP_VERSION}/cli/conf.d/20-xdebug.ini /etc/php/${PHP_VERSION}/cli/conf.d/20-xdebug.ini-bak; fi
 
 # Install MySQL
-RUN sudo apt-get -y install gnupg2 \
+RUN sudo apt-get update \
+ && sudo apt-get -y install gnupg2 \
  && sudo apt-get clean && sudo rm -rf /var/cache/apt/* /var/lib/apt/lists/* /tmp/* \
  && sudo mkdir /var/run/mysqld \
  && sudo wget -c https://repo.percona.com/apt/percona-release_latest.stretch_all.deb \
  && sudo dpkg -i percona-release_latest.stretch_all.deb \
+ && sudo apt-get update
  
 RUN set -ex; \
 	{ \
@@ -85,6 +89,7 @@ RUN set -ex; \
 			sudo echo "percona-server-server-${PERCONA_MAJOR}" "$key" password ${MYSQL_ROOT_PASSWORD}; \
 		done; \
 	} | sudo debconf-set-selections; \
+	sudo apt-get update; \
 	sudo apt-get install -y \
 		percona-server-server-${PERCONA_MAJOR} percona-server-client-${PERCONA_MAJOR} percona-server-common-${PERCONA_MAJOR} \
 	;
@@ -109,7 +114,9 @@ RUN sudo chown -R gitpod:gitpod /etc/php
 COPY gitpod/nginx.conf /etc/nginx
 
 # Install Redis.
-RUN sudo apt-get install -y redis-server \
+RUN sudo apt-get update \
+ && sudo apt-get install -y \
+  redis-server \
  && sudo rm -rf /var/lib/apt/lists/*
  
  #n98-magerun2 tool
